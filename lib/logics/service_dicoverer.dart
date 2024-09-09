@@ -1,18 +1,19 @@
 import 'package:bonsoir/bonsoir.dart';
 import 'package:logger/logger.dart';
+import 'dart:convert';
 
 enum ServiceDiscovererState {
   notStarted,
   ready,
   started,
   serviceFound,
-  serviceNotFound,
+  serviceResolved,
   serviceLost,
   otherEvent
 }
 
 class ServiceDiscoverer {
-  static const String _name = 'mrobot-server._websocket._tcp.local.';
+  static const String _name = '_mrobot-server';
 
   final _discovery = BonsoirDiscovery(type: '_websocket._tcp.');
   final _logger = Logger();
@@ -20,6 +21,7 @@ class ServiceDiscoverer {
   state() => _state;
   host() => _host;
   port() => _port;
+  name() => _name;
 
   ServiceDiscovererState _state = ServiceDiscovererState.notStarted;
   var _host = "";
@@ -37,15 +39,11 @@ class ServiceDiscoverer {
       _logger.d('Handling discovery event');
 
       if (event.type == BonsoirDiscoveryEventType.discoveryServiceFound) {
-        _logger.i('Service found : ${event.service!.toJson()}');
-        //event.service!.resolve(discovery.serviceResolver); // Should be called when the user wants to connect to this service.
-        _state = ServiceDiscovererState.serviceFound;
+        handleServiceFound(event.service!);
       } else if (event.type == BonsoirDiscoveryEventType.discoveryServiceResolved) {
-        _logger.i('Service resolved : ${event.service!.toJson()}');
-        _state = ServiceDiscovererState.serviceFound;
+        handleServiceResolved(event.service!);
       } else if (event.type == BonsoirDiscoveryEventType.discoveryServiceLost) {
-        _logger.i('Service lost : ${event.service!.toJson()}');
-        _state = ServiceDiscovererState.serviceFound;
+        handleServiceLost(event.service!);
       } else {
         _logger.i('State: ${event.type}');
         _state = ServiceDiscovererState.otherEvent;
@@ -55,7 +53,6 @@ class ServiceDiscoverer {
       onDiscoveryStateChange();
     });
 
-// Start the discovery **after** listening to discovery events :
     _logger.d('Starting discovery service');
     await _discovery.start();
 
@@ -64,5 +61,40 @@ class ServiceDiscoverer {
 
   Future<void> stop() async {
     await _discovery.stop();
+  }
+
+  handleServiceFound(BonsoirService service) {
+    _logger.i('Service found : ${service.toJson()}');
+
+    final foundServiceName = service.name;
+    if (foundServiceName == _name) {
+      service.resolve(_discovery.serviceResolver);
+      _state = ServiceDiscovererState.serviceFound;
+    }
+  }
+
+  handleServiceResolved(BonsoirService service) {
+    _logger.i('Service resolved : ${service.toJson()}');
+
+    _host = "";
+    _port = 0;
+
+    service.toJson().forEach((k, v) {
+      if (k == 'service.host') {
+        _host = v;
+        _port = service.port;
+        _state = ServiceDiscovererState.serviceResolved;
+      }    _state = ServiceDiscovererState.serviceResolved;
+
+    });
+  }
+
+  handleServiceLost(BonsoirService service) {
+    _logger.i('Service lost : ${service.toJson()}');
+
+    _port = 0;
+    _host = "";
+
+    _state = ServiceDiscovererState.serviceLost;
   }
 }

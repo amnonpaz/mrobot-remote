@@ -75,11 +75,11 @@ class _MyHomePageState extends State<MyHomePage> {
       case ServiceDiscovererState.started:
         text = 'Discovery service started';
         break;
-      case ServiceDiscovererState.serviceNotFound:
-        text = 'Service not found';
-        break;
       case ServiceDiscovererState.serviceFound:
-        text = 'Service found on ${_serviceDiscoverer.host()}:${_serviceDiscoverer.port()}';
+        text = 'Service ${_serviceDiscoverer.name()} found';
+        break;
+      case ServiceDiscovererState.serviceResolved:
+        text = 'Service ${_serviceDiscoverer.name()} resolves on ${_serviceDiscoverer.host()}:${_serviceDiscoverer.port()}';
         break;
       case ServiceDiscovererState.serviceLost:
         text = 'Service lost';
