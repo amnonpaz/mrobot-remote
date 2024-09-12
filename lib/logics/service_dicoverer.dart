@@ -1,6 +1,5 @@
 import 'package:bonsoir/bonsoir.dart';
 import 'package:logger/logger.dart';
-import 'dart:convert';
 
 enum ServiceDiscovererState {
   notStarted,

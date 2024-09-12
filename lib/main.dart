@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:mrobot_remote/logics/service_dicoverer.dart';
-import 'package:mrobot_remote/widgets/connection_state_indicator.dart';
+import 'package:mrobot_remote/views/main_view.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const MRobotRemoteApplication());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MRobotRemoteApplication extends StatelessWidget {
+  const MRobotRemoteApplication({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -18,80 +16,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.orangeAccent),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'mRobot remote controller'),
+      home: const MainView(title: 'mRobot remote controller'),
     );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  final _serviceDiscoverer = ServiceDiscoverer();
-  final _connectionStateIndicator = ConnectionStateIndicator();
-
-  @override
-  void initState() {
-    super.initState();
-    _serviceDiscoverer.discover(onServiceDiscoveryDone);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _connectionStateIndicator.getWidget(),
-            Text(getServiceDiscoveryStateText())
-          ],
-        ),
-      ),
-    );
-  }
-
-  onServiceDiscoveryDone() {
-    _connectionStateIndicator.setState(_serviceDiscoverer.state() == ServiceDiscovererState.serviceResolved);
-    setState(() {});
-  }
-
-  getServiceDiscoveryStateText() {
-    var text = 'Discovery service invalid state';
-    switch (_serviceDiscoverer.state()) {
-      case ServiceDiscovererState.notStarted:
-        text = 'Discovery service not started';
-        break;
-      case ServiceDiscovererState.ready:
-        text = 'Discovery service ready';
-        break;
-      case ServiceDiscovererState.started:
-        text = 'Discovery service started';
-        break;
-      case ServiceDiscovererState.serviceFound:
-        text = 'Service ${_serviceDiscoverer.name()} found';
-        break;
-      case ServiceDiscovererState.serviceResolved:
-        text = 'Service ${_serviceDiscoverer.name()} resolves on ${_serviceDiscoverer.host()}:${_serviceDiscoverer.port()}';
-        break;
-      case ServiceDiscovererState.serviceLost:
-        text = 'Service lost';
-        break;
-      case ServiceDiscovererState.otherEvent:
-        text = "Service something";
-        break;
-    }
-
-    return text;
   }
 }

@@ -12,7 +12,7 @@ class ConnectionStateIndicator {
   }
 
   connectedWidget() {
-    return const Icon(IconData(0xe159, fontFamily: 'MaterialIcons'), color: Colors.green, size: 100,);
+    return const Icon(IconData(0xe159, fontFamily: 'MaterialIcons'), color: Colors.green, size: 100);
   }
 
   disconnectedWidget() {

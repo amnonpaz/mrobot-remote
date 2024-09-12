@@ -33,6 +33,7 @@ dependencies:
   bonsoir: ^5.1.10
   logger: ^2.4.0
   loading_animation_widget: ^1.2.1
+  web_socket_client: ^0.1.4
 
 
   # The following adds the Cupertino Icons font to your application.
