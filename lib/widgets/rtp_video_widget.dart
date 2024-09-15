@@ -1,61 +1,47 @@
 import 'package:flutter/material.dart';
-import 'package:video_player/video_player.dart';
-
+import 'package:media_kit/media_kit.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 
 class RtpVideoWidget extends StatefulWidget {
-  const RtpVideoWidget({super.key, required String host, required int port}) :
-    _host = host,
-    _port = port;
+  final String host;
+  final int port;
 
-  final String _host;
-  final int _port;
+  // Constructor takes host and port as parameters.
+  RtpVideoWidget({required this.host, required this.port});
 
   @override
   _RtpVideoWidgetState createState() => _RtpVideoWidgetState();
 }
 
 class _RtpVideoWidgetState extends State<RtpVideoWidget> {
-
-  late VideoPlayerController _controller;
+  late Player _player = Player();
+  late VideoController _controller = VideoController(_player);
 
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.networkUrl(Uri.parse('rtp://${widget._host}:${widget._port}'))
-      ..initialize().then((_) {
-        setState(() {});
-      });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        body: Center(
-          child: _controller.value.isInitialized
-              ? AspectRatio(
-            aspectRatio: _controller.value.aspectRatio,
-            child: VideoPlayer(_controller),
-          )
-              : Container(),
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            setState(() {
-              _controller.value.isPlaying
-                  ? _controller.pause()
-                  : _controller.play();
-            });
-          },
-          child: Icon(
-            _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
-          ),
-        ),
-      );
+    WidgetsFlutterBinding.ensureInitialized();
+    MediaKit.ensureInitialized();
+    _player.open(Media('rtp://${widget.host}:${widget.port}'));
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    // Dispose the player and controller when no longer needed.
+    _player.dispose();
     super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: SizedBox(
+        width: MediaQuery.of(context).size.width,
+        height: 480*MediaQuery.of(context).size.width/640,
+        child: Video(
+          controller: _controller,
+        ),
+      )
+    );
   }
 }
