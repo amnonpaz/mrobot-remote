@@ -83,8 +83,7 @@ class ServiceDiscoverer {
         _host = v;
         _port = service.port;
         _state = ServiceDiscovererState.serviceResolved;
-      }    _state = ServiceDiscovererState.serviceResolved;
-
+      }
     });
   }
 

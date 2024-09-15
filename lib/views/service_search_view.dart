@@ -6,9 +6,10 @@ typedef OnServiceResolvedCallback = void Function(String host, int port);
 typedef OnServiceLostCallback = void Function();
 
 class ServiceSearchView extends StatefulWidget {
-  const ServiceSearchView({super.key, required this.onServiceResolvedCallback});
+  const ServiceSearchView({super.key, required this.onServiceResolvedCallback, required this.onServiceLostCallback});
 
   final OnServiceResolvedCallback onServiceResolvedCallback;
+  final OnServiceLostCallback onServiceLostCallback;
 
   @override
   State<ServiceSearchView> createState() => _ServiceSearchViewState();
@@ -30,16 +31,22 @@ class _ServiceSearchViewState extends State<ServiceSearchView> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          const Spacer(),
           _connectionStateIndicator.getWidget(),
           Text(getServiceDiscoveryStateText()),
-          connectButton()
+          const Spacer(),
         ],
       ),
     );
   }
 
   onServiceDiscoveryDone() {
-    _connectionStateIndicator.setState(_serviceDiscoverer.state() == ServiceDiscovererState.serviceResolved);
+    bool resolved = _serviceDiscoverer.state() == ServiceDiscovererState.serviceResolved;
+    _connectionStateIndicator.setState(resolved);
+    if (resolved) {
+      widget.onServiceResolvedCallback(_serviceDiscoverer.host(), _serviceDiscoverer.port());
+    }
+
     setState(() {});
   }
 
@@ -72,25 +79,4 @@ class _ServiceSearchViewState extends State<ServiceSearchView> {
     return text;
   }
 
-  Widget connectButton() {
-    if (_serviceDiscoverer.state() != ServiceDiscovererState.serviceResolved) {
-      return Container();
-    }
-
-    return TextButton(
-        onPressed: onConnectPressed,
-        style: TextButton.styleFrom(
-            foregroundColor: Colors.limeAccent,
-            textStyle: const TextStyle(fontSize: 50)),
-        child: const Text('Connect')
-    );
-  }
-
-  onConnectPressed() {
-    if (_serviceDiscoverer.state() == ServiceDiscovererState.serviceResolved) {
-  //    _mrobotClient.open(_serviceDiscoverer.host(), _serviceDiscoverer.port());
-    }
-
-    setState(() {});
-  }
 }
