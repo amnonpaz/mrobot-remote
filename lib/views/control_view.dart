@@ -49,7 +49,7 @@ class _ControlViewState extends State<ControlView> implements MRobotClientEvents
             ],
           ),
           const Spacer(),
-          Joystick(listener: (details) {}),
+          Joystick(listener: onJoystickMovement),
           const Spacer(),
         ],
       )
@@ -58,6 +58,10 @@ class _ControlViewState extends State<ControlView> implements MRobotClientEvents
 
   onEnableVideoChange(bool value) {
     widget.mrobotClient.setVideoState(value);
+  }
+
+  onJoystickMovement(details) {
+    widget.mrobotClient.setMovement(details.x, (-1.0)*details.y);
   }
 
   @override

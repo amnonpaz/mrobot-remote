@@ -136,4 +136,19 @@ class MRobotClient {
     _client!.send(p.takeBytes());
   }
 
+  setMovement(double x, double y) {
+    final p = Packer()
+      ..packMapLength(2)
+        ..packString('command')
+          ..packString('move')
+        ..packString('parameters')
+          ..packMapLength(2)
+            ..packString('x')
+              ..packDouble(x)
+            ..packString('y')
+              ..packDouble(y);
+
+    _client!.send(p.takeBytes());
+  }
+
 }
