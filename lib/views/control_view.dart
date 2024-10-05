@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:typed_data';
 import 'package:flutter_joystick/flutter_joystick.dart';
 import 'package:mrobot_remote/logics/mrobot_client.dart';
+import 'package:mrobot_remote/widgets/video_frame_widget.dart';
 
 class ControlView extends StatefulWidget {
   const ControlView({super.key, required this.mrobotClient});
@@ -15,8 +16,8 @@ class ControlView extends StatefulWidget {
 
 class _ControlViewState extends State<ControlView> implements MRobotClientEventsHandler {
   bool _videoEnabled = false;
-  final Image _blankImage = Image.asset('assets/images/blank_frame.png');
-  Uint8List? _lastImage;
+  final _blankImage = Image.asset('assets/images/blank_frame.png');
+  Uint8List? _lastImageData;
 
   @override
   initState() {
@@ -30,10 +31,10 @@ class _ControlViewState extends State<ControlView> implements MRobotClientEvents
       child: Column(
         children: [
           SizedBox(
-            child: (_videoEnabled && (_lastImage != null)) ?
-              Image.memory(
-                _lastImage!,
-                gaplessPlayback: true,
+            child: _videoEnabled ?
+              VideoFrameWidget(
+                imageStream: getImageStream(),
+                defaultImage: _blankImage
               ) :
               _blankImage
           ),
@@ -73,7 +74,16 @@ class _ControlViewState extends State<ControlView> implements MRobotClientEvents
 
   @override
   Future<void> onVideoFrame(frame) async {
-    _lastImage = frame;
-    setState(() {});
+    _lastImageData = frame;
   }
+
+  Stream<Uint8List> getImageStream() async* {
+    while (true) {
+      await Future.delayed(const Duration(milliseconds: 30));
+      if (_lastImageData != null) {
+        yield _lastImageData!;
+      }
+    }
+  }
+
 }
