@@ -84,7 +84,7 @@ class _ControlViewState extends State<ControlView> implements MRobotClientEvents
   Stream<Uint8List> getImageStream() async* {
     while (true) {
       await Future.delayed(const Duration(milliseconds: 30));
-      if (_lastImageData != null) {
+      if (_videoEnabled && (_lastImageData != null)) {
         yield _lastImageData!;
       }
     }
