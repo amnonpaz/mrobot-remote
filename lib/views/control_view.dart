@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_joystick/flutter_joystick.dart';
 import 'package:mrobot_remote/logics/mrobot_client.dart';
 
 class ControlView extends StatefulWidget {
@@ -30,7 +31,6 @@ class _ControlViewState extends State<ControlView> implements MRobotClientEvents
           SizedBox(
             child: _videoEnabled ? _lastImage : _blankImage
           ),
-          const Spacer(),
           Row(
             children: [
               const Text('Enable video'),
@@ -40,7 +40,10 @@ class _ControlViewState extends State<ControlView> implements MRobotClientEvents
                 onChanged: onEnableVideoChange
               )
             ],
-          )
+          ),
+          const Spacer(),
+          Joystick(listener: (details) {}),
+          const Spacer(),
         ],
       )
     );
