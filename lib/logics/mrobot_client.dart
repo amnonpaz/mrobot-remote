@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:logger/logger.dart';
 import 'package:messagepack/messagepack.dart';
 import 'package:web_socket_client/web_socket_client.dart';
@@ -10,6 +12,7 @@ abstract class MRobotClientConnectionHandler {
 abstract class MRobotClientEventsHandler {
   Future<void> onVideoStarted();
   Future<void> onVideoStopped();
+  Future<void> onVideoFrame(Uint8List frame);
 }
 
 class MRobotClient {
@@ -71,8 +74,18 @@ class MRobotClient {
       return;
     }
 
-    final u = Unpacker(message);
-    var answer = u.unpackMap();
+    final unpacker = Unpacker(message);
+    var unpackedMessage = unpacker.unpackMap();
+    if (unpackedMessage.containsKey('command')) {
+      _logger.d('Got command');
+      handleAnswer(unpackedMessage);
+    } else if (unpackedMessage.containsKey('event')) {
+      _logger.d('Got event');
+      handleEvent(unpackedMessage);
+    }
+  }
+
+  handleAnswer(answer) {
     if (answer['success'] == false) {
       _logger.w('Command ${answer['command']} has failed: ${answer['response']}');
       return;
@@ -85,6 +98,22 @@ class MRobotClient {
     } else if (answer['command'] == 'video_stop') {
       _eventsHandler!.onVideoStopped();
     }
+  }
+
+  handleEvent(event) {
+    if (!event.containsKey('event')) {
+      _logger.w('Event does not have \'event\' field');
+      return;
+    }
+
+    if (!event.containsKey('payload')) {
+      _logger.w('Video frame event does not contain payload');
+      return;
+    }
+
+    _logger.d('Event: ${event['event']} ; Payload side: ${event['payload'].length}');
+    Uint8List rawData = base64Decode(event['payload']);
+    _eventsHandler!.onVideoFrame(rawData);
   }
 
   setVideoState(bool state) {

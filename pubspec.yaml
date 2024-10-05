@@ -20,6 +20,7 @@ dependencies:
   media_kit: ^1.1.11
   media_kit_video: ^1.2.5
   media_kit_libs_video: ^1.0.5
+  video_player_media_kit: ^1.0.5
 
 dev_dependencies:
   flutter_test:
@@ -30,9 +31,6 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
-flutter_icons:
-  android: true
-  image_path: assets/icons/app_icon.png
-
-assets:
-  - assets/icons/app_icon.png
+  assets:
+    - assets/icons/app_icon.png
+    - assets/images/blank_frame.png
