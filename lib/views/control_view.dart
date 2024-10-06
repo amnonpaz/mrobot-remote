@@ -16,6 +16,7 @@ class ControlView extends StatefulWidget {
 
 class _ControlViewState extends State<ControlView> implements MRobotClientEventsHandler {
   bool _videoEnabled = false;
+  bool _frontLights = false;
   final _blankImage = Image.asset('assets/images/blank_frame.png');
   Uint8List? _lastImageData;
 
@@ -41,11 +42,23 @@ class _ControlViewState extends State<ControlView> implements MRobotClientEvents
           Row(
             children: [
               const Text('Enable video'),
+              const Spacer(),
               Switch(
                 value: _videoEnabled,
                 activeColor: Colors.red,
                 onChanged: onEnableVideoChange
               )
+            ],
+          ),
+          Row(
+            children: [
+              const Text('Front lights'),
+              const Spacer(),
+              Switch(
+                  value: _frontLights,
+                  activeColor: Colors.red,
+                  onChanged: onFrontLightsChange
+              ),
             ],
           ),
           const Spacer(),
@@ -58,6 +71,10 @@ class _ControlViewState extends State<ControlView> implements MRobotClientEvents
 
   onEnableVideoChange(bool value) {
     widget.mrobotClient.setVideoState(value);
+  }
+
+  onFrontLightsChange(bool value) {
+    widget.mrobotClient.setFrontLightsState(value);
   }
 
   onJoystickMovement(details) {

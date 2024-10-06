@@ -136,6 +136,24 @@ class MRobotClient {
     _client!.send(p.takeBytes());
   }
 
+  setFrontLightsState(bool state) {
+    if (_client == null) {
+      _logger.w('Trying to use null client');
+      return;
+    }
+
+    final p = Packer()
+      ..packMapLength(2)
+      ..packString('command')
+        ..packString('front_lights')
+      ..packString('parameters')
+        ..packMapLength(1)
+        ..packString('state')
+        ..packBool(state);
+
+    _client!.send(p.takeBytes());
+  }
+
   setMovement(double x, double y) {
     final p = Packer()
       ..packMapLength(2)
